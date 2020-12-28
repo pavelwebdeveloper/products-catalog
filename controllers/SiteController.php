@@ -5,6 +5,8 @@
 namespace app\controllers;
 
 use Yii;
+use yii\base\Model;
+
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -13,6 +15,10 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use yii\data\Pagination;
 use app\models\Product;
+use app\models\Image;
+use app\models\CreateAndEditForm;
+use app\models\UploadForm;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -66,7 +72,98 @@ class SiteController extends Controller
     public function actionIndex()
     {
      
+     
        $query = Product::find();
+       
+       $images = Image::find()
+           ->indexBy('id')
+           ->all();
+
+        $pagination = new Pagination([
+            'defaultPageSize' => 2,
+            'totalCount' => $query->count(),
+        ]);
+
+        $products = $query->orderBy('id')
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+      
+    
+        
+        
+        return $this->render('index', [
+            'products' => $products,
+            'pagination' => $pagination,
+             'images' => $images,
+        ]);
+    }
+    
+    
+    public function actionUpload()
+    {
+        $model = new UploadForm();
+        
+        if (Yii::$app->request->isPost) {
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            if ($model->upload()) {
+                // file is uploaded successfully
+             $success_message = "File is uploaded successfully";
+                return $this->render('upload', [
+                    'model' => $model,
+                    'success_message' => $success_message,
+                        ]);
+            }
+        }
+        
+              
+
+        return $this->render('upload', [
+            'model' => $model,
+             'success_message' => "",
+            
+            ]);
+    }
+    
+    
+    /**
+     * Edit action.
+     *
+     * @return Response|string
+     */
+    
+         
+    public function actionUpdate_products($productId)
+    {
+        
+     //var_dump($productId);
+        //exit;
+                
+        $model = new CreateAndEditForm();
+        
+        $images = Image::find()
+           ->indexBy('id')
+           ->all();
+        
+        if($productId > 0){
+        
+        $product = Product::findOne((int)$productId);
+        
+        if($post = $model->load(Yii::$app->request->post())){
+         
+        //var_dump((int)$model->imageId);
+        //exit;
+         
+         //$session->setFlash('message', 'You have successfully updated the product.');
+                  
+         $product->imageId = $model->imageId;
+         $product->productSKU = $model->productSKU;
+         $product->productName = $model->productName;
+         $product->productAmount = $model->productAmount;
+         $product->productType = $model->productType;
+         $product->save();
+         
+         $query = Product::find();
 
         $pagination = new Pagination([
             'defaultPageSize' => 2,
@@ -82,71 +179,110 @@ class SiteController extends Controller
         return $this->render('index', [
             'products' => $products,
             'pagination' => $pagination,
-            
+             'images' => $images,
         ]);
-    }
-    
-    
-    /**
-     * Edit action.
-     *
-     * @return Response|string
-     */
-    
-    public function actionEdit($id)
-    {
-        
-                
-        $model = new EditForm();
-        
-        $announcement = Announcement::findOne((int)$announcementId);
-        
-        if($post = $model->load(Yii::$app->request->post())){
-         
-         $session->setFlash('message', 'You have successfully updated the ad.');
-         
-         $announcement->announcementTitle = $model->title;
-         $announcement->announcementDescription = $model->description;
-         $announcement->save();
-         
-         return $this->render('showad', [
-             'message' => $session->getFlash('message'),
-             'loggedIn' => $session->get('loggedIn'),
-             'userId' => $session->get('userId'),
-             'username'=>$session->get('username'),
-             'announcement' => $announcement,
-         ]);
         }
         
-         if($announcement){
-         return $this->render('edit', [
-              'message' => $session->getFlash('message'),
+         if($productId){
+         return $this->render('update', [
+              //'message' => $session->getFlash('message'),
               'post' => $post,        
               'model' => $model,
-              'loggedIn' => $session->get('loggedIn'),
-              'userId' => $session->get('userId'),
-              'username'=>$session->get('username'),
-              'announcement' => $announcement,
+              'product' => $product,
+              'images' => $images,
          ]);
-        }       
-    }
-    
-    
-    
-    public function actionUpload()
-    {
-        $model = new EditForm();
-
-        if (Yii::$app->request->isPost) {
-            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
-            if ($model->upload()) {
-                // file is uploaded successfully
-                return;
-            }
         }
+        
+        } else {
+         //$model = new CreateAndEditForm();
+         
+         /*
+         $images = Image::find()
+           ->indexBy('id')
+           ->all();
+          * *
+          */
+         
+         /*
+         var_dump($model->load(Yii::$app->request->post()))."<br><br>";
+         var_dump($model->imageId);
+         echo "Hiiiiiiiiiiiiiiiiiii";
+         exit;
+          * *
+          */
+         
+        if ($model->load(Yii::$app->request->post()) && $model->create()) {
+         
+         //if ($model->load(Yii::$app->request->post())) {
+         
+          
+            /*$product = new Product();
+              $product->imageId = $model->imageId;
+         $product->productSKU = $model->productSKU;
+         $product->productName = $model->productName;
+         $product->productAmount = $model->productAmount;
+         $product->productType = $model->productType;
+         
+         /*
+         var_dump($product);
+          var_dump($product->imageId)."<br>";
+     var_dump($product->productSKU)."<br>";
+     var_dump($product->productName)."<br>";
+     var_dump($product->productAmount)."<br>";
+     var_dump($product->productType)."<br>";
+     
+          exit;
+          * 
+          */
+         /*
+          echo var_dump($product)."<br><br><br><br><br><br>";  
+         echo var_dump($product->save());  
+         
+         echo "Works or not";
+         exit;
+          * *
+          */
+         // setting flash-message
+        // $session->setFlash('message', 'You have successfully added a product.');
+         
+         /*
+         $productId = Product::find()
+             ->max('id');
+         
+         $createdProduct = Product::find()
+             ->where(['id' => $productId])
+             ->one();
+          * *
+          */
+         
+         $query = Product::find();
 
-        return $this->render('edit', ['model' => $model]);
+        $pagination = new Pagination([
+            'defaultPageSize' => 2,
+            'totalCount' => $query->count(),
+        ]);
+
+        $products = $query->orderBy('id')
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+                 
+          return $this->render('index', [
+              //'message' => $session->getFlash('message'),
+               'products' => $products,
+            'pagination' => $pagination,
+               'images' => $images,
+              ]);
+         
+        }
+        
+        return $this->render('update', [
+             'model' => $model, 
+             'images' => $images,            
+        ]);
+        }
     }
+        
 
     /**
      * Login action.

@@ -10,6 +10,11 @@ use yii\helpers\Url;
 
 $this->title = 'My Yii Application';
 ?>
+
+<?php //var_dump($images)."<br>"; ?>
+<?php //var_dump($products); ?>
+<?php //exit;?>
+
 <div class="site-index">
 
     <div class="jumbotron">
@@ -21,6 +26,20 @@ $this->title = 'My Yii Application';
     </div>
 
     <div class="body-content">
+     
+     <?php if(isset(Yii::$app->user->identity->username)) { ?>
+     
+     <?php if(Yii::$app->user->identity->username == 'admin') { ?>
+     
+     <?= Html::a('Add Product', ['update_products', 'productId'=>0])."<br>"; ?> 
+     <?= Html::a('Upload an image', ['upload']); ?>
+     <?php } else { ?>
+     
+     <?php echo ""; } ?>
+     
+     <?php } else { ?>
+     
+     <?php echo ""; } ?>
 
         <h1>Products</h1>
 <table class="table table-hover">
@@ -42,13 +61,17 @@ $this->title = 'My Yii Application';
   ?>
    
     <tr>
-     <td><?= Html::img($product->productImage); ?></td>
+     <td><?php foreach ($images as $image): ?>
+     <?php if($product->imageId == $image->id){ ?>
+     <?= Html::img($image->imagePath); ?>
+     <?php }; ?>
+     <?php endforeach; ?></td>
      <td><?= $product->productSKU ?></td>
      <td><?= $product->productName ?></td>
      <td><?= $product->productAmount ?></td>  
      <td><?= $product->productType ?></td> 
      <?php if(Yii::$app->user->isGuest) { echo "";} else {?>
-     <td><?= Html::a('Edit', ['edit', 'id'=>$product->id], ['class'=>'label label-primary']) ?></td>  
+     <td><?= Html::a('Edit', ['update_products', 'productId'=>$product->id], ['class'=>'label label-primary']) ?></td>  
      <?php } ?>
   </tr>
 <?php endforeach; ?>

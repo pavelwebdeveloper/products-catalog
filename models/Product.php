@@ -30,13 +30,13 @@ class Product extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'productImage', 'productSKU', 'productName', 'productAmount', 'productType'], 'required'],
-            [['id'], 'integer'],
-            [['productImage'], 'string'],
+            [[/*'id', */'imageId', 'productSKU', 'productName', 'productAmount', 'productType'], 'required'],
+            //[['id'], 'integer'],
+            [['imageId'], 'integer'],
             [['productSKU'], 'string'],
             [['productName'], 'string'],
             [['productAmount'], 'integer'],
-            [['productType'], 'string', 'max' => 30],
+            [['productType'], 'string'],
         ];
     }
 
@@ -47,7 +47,7 @@ class Product extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'Product ID',
-            'productImage' => 'Product Image',
+            'imageId' => 'Image ID',
             'productSKU' => 'Product SKU',
             'productName' => 'Product Name',
             'productAmount' => 'Product Amount',
